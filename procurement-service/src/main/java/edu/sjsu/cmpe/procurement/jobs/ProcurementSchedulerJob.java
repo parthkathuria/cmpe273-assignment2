@@ -102,11 +102,12 @@ public class ProcurementSchedulerJob extends Job {
 	private ShippedBooks getOrderFromPublisher() {
 
 		Client client = Client.create();
-		WebResource webResource = client.resource("http://54.215.133.131:9000/orders/31112");
+		WebResource webResource = client
+				.resource("http://54.215.133.131:9000/orders/31112");
 		ClientResponse response = webResource.accept("application/json").get(
 				ClientResponse.class);
 		ShippedBooks shippedBooks = response.getEntity(ShippedBooks.class);
-		System.out.println("Response Status : " + response.getStatus());
+		System.out.println("GET Response Status : " + response.getStatus());
 		return shippedBooks;
 
 	}
@@ -136,28 +137,16 @@ public class ProcurementSchedulerJob extends Job {
 			Message msg = consumer.receive(waitUntil);
 			if (msg instanceof TextMessage) {
 				String body = ((TextMessage) msg).getText();
-				if ("SHUTDOWN".equals(body)) {
-					break;
-				}
-				System.out.println("Received message = " + body);
-				addIsbn(Integer.parseInt(body.split(":")[1]));
-				incNumberofMsgs();
-			} else if (msg instanceof StompJmsMessage) {
-				StompJmsMessage smsg = ((StompJmsMessage) msg);
-				String body = smsg.getFrame().contentAsString();
-				if ("SHUTDOWN".equals(body)) {
-					break;
-				}
 				System.out.println("Received message = " + body);
 				addIsbn(Integer.parseInt(body.split(":")[1]));
 				incNumberofMsgs();
 			} else if (msg == null) {
-				System.out
-						.println("No new messages. Existing due to timeout - "
-								+ waitUntil / 1000 + " sec");
 				if (getNumberOfMsgs() > 0) {
 					submitBookOrder(isbns);
 				}
+				System.out
+						.println("No new messages. Existing due to timeout - "
+								+ waitUntil / 1000 + " sec");
 				break;
 			} else {
 				System.out
@@ -175,15 +164,16 @@ public class ProcurementSchedulerJob extends Job {
 		book.setId("31112");
 		book.setOrder_book_isbns(isbns);
 		Client client = new Client();
-		WebResource webResource = client.resource("http://54.215.133.131:9000/orders");
+		WebResource webResource = client
+				.resource("http://54.215.133.131:9000/orders");
 		ClientResponse response = webResource.type("application/json").post(
 				ClientResponse.class, book);
-
 		if (response.getStatus() == 200) {
 			setNumberOfMsgs(0);
 			removeIsbns(isbns);
-			System.out.println("Response status: " +response.getStatus());
-			System.out.println("{'msg':'Your order was successfully submitted.'}");
+			System.out.println("POST Response status: " + response.getStatus());
+			System.out
+					.println("{'msg':'Your order was successfully submitted.'}");
 		} else {
 			System.out.println("Post unsuccessfull");
 		}

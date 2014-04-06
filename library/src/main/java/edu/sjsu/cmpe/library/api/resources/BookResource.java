@@ -138,7 +138,6 @@ public class BookResource {
     	TextMessage msg = session.createTextMessage(data);
     	msg.setLongProperty("id", System.currentTimeMillis());
     	producer.send(msg);
-    	producer.send(session.createTextMessage("SHUTDOWN"));
     	connection.close();
 
     }
