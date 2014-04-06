@@ -101,7 +101,8 @@ public class ProcurementSchedulerJob extends Job {
 
 	private ShippedBooks getOrderFromPublisher() {
 
-		WebResource webResource = ProcurementService.jerseyClient.resource("http://54.215.133.131:9000/orders/31112");
+		Client client = Client.create();
+		WebResource webResource = client.resource("http://54.215.133.131:9000/orders/31112");
 		ClientResponse response = webResource.accept("application/json").get(
 				ClientResponse.class);
 		ShippedBooks shippedBooks = response.getEntity(ShippedBooks.class);
@@ -173,17 +174,16 @@ public class ProcurementSchedulerJob extends Job {
 		BookOrder book = new BookOrder();
 		book.setId("31112");
 		book.setOrder_book_isbns(isbns);
-
-		WebResource webResource = ProcurementService.jerseyClient.resource("http://54.215.133.131:9000/orders");
+		Client client = new Client();
+		WebResource webResource = client.resource("http://54.215.133.131:9000/orders");
 		ClientResponse response = webResource.type("application/json").post(
 				ClientResponse.class, book);
 
 		if (response.getStatus() == 200) {
 			setNumberOfMsgs(0);
 			removeIsbns(isbns);
-			System.out.println(response.getStatus());
-			System.out
-					.println("{'msg':'Your order was successfully submitted.'}");
+			System.out.println("Response status: " +response.getStatus());
+			System.out.println("{'msg':'Your order was successfully submitted.'}");
 		} else {
 			System.out.println("Post unsuccessfull");
 		}
