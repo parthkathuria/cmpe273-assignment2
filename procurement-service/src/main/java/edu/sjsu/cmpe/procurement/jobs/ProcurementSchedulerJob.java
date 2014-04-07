@@ -141,12 +141,13 @@ public class ProcurementSchedulerJob extends Job {
 				addIsbn(Integer.parseInt(body.split(":")[1]));
 				incNumberofMsgs();
 			} else if (msg == null) {
-				if (getNumberOfMsgs() > 0) {
-					submitBookOrder(isbns);
-				}
+				
 				System.out
 						.println("No new messages. Existing due to timeout - "
 								+ waitUntil / 1000 + " sec");
+				if (getNumberOfMsgs() > 0) {
+					submitBookOrder(isbns);
+				}
 				break;
 			} else {
 				System.out
@@ -172,8 +173,10 @@ public class ProcurementSchedulerJob extends Job {
 			setNumberOfMsgs(0);
 			removeIsbns(isbns);
 			System.out.println("POST Response status: " + response.getStatus());
-			System.out
-					.println("{'msg':'Your order was successfully submitted.'}");
+			String output = response.getEntity(String.class);
+			//System.out.println("{'msg':'Your order was successfully submitted.'}");
+			System.out.println("Message from Server:");
+			System.out.println(output);
 		} else {
 			System.out.println("Post unsuccessfull");
 		}
